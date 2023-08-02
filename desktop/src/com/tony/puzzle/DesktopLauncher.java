@@ -2,7 +2,8 @@ package com.tony.puzzle;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import kw.maj.ArtPuzzle;
+
+import kw.maj.MajGAme;
 
 public class DesktopLauncher {
     public static void main(String[] args) {
@@ -10,8 +11,9 @@ public class DesktopLauncher {
         config.title="maj";
         config.x = 1000;
         config.y = 0;
-        config.height = (int) (1920 * 0.25f);
-        config.width = (int) (1080 * 0.3f);
-        new LwjglApplication(new ArtPuzzle());
+        config.width = (int) (1280);
+        config.height = (int) (720);
+        new LwjglApplication(new MajGAme(),config);
+
     }
 }
