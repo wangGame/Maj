@@ -23,7 +23,8 @@ public class LoadingScreen extends BaseScreen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
-                setScreen(GameScreen.class);
+//                setScreen(GameScreen.class);
+                setScreen(MajScreen.class);
             }
         });
     }
