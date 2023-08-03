@@ -30,8 +30,8 @@ public class IUser {
     }
 
     //分析   用户出完牌，会进行分析，用户是否可以有碰吃等操作
-    public void analy(){
-
+    public int analy(){
+        return userHandPai.removeIndex(0);
     }
 
     public Array<Integer> getUserHandPai() {

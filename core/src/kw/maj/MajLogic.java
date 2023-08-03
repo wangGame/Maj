@@ -2,6 +2,7 @@ package kw.maj;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -24,15 +25,17 @@ public class MajLogic {
     private Array<IUser> iUsers;
     private int zhuangjia;
     private Array<Integer>[] arrays;
-    private int currentIndex;
+    private int currentIndexTemp;
+    private int currentDesk;
     private Group rootView;
+    private  MajData data;
 
     public MajLogic(Group group){
         this.rootView = group;
         iUsers = new Array<>();
     }
     public void initData(){
-        MajData data = new MajData();
+       data = new MajData();
         this.arrays = data.genUserPai();
         //庄家
         zhuangjia = data.shuaiNum();
@@ -40,13 +43,14 @@ public class MajLogic {
 
 
     public void userEnter(){
-        currentIndex = zhuangjia;
+        currentIndexTemp = zhuangjia;
+        currentDesk = zhuangjia;
         //用户进入游戏
         for (int i = 0; i < 4; i++) {
             rootView.addAction(Actions.delay(i*0.3f,Actions.run(new Runnable() {
                 @Override
                 public void run() {
-                    int userId = (currentIndex++ % 4);
+                    int userId = (currentIndexTemp++ % 4);
                     IUser iUser = new IUser(userId,arrays[userId]);
                     iUsers.add(iUser);
                     //展示图标
@@ -67,6 +71,48 @@ public class MajLogic {
     public void startGame(){
         initUserPaiView();
         initUserIconAnimation();
+
+        gameSendPai();
+    }
+
+    private void gameSendPai() {
+        //庄家开始
+        int i = data.faPai();
+        currentDesk = (currentDesk)% 4;
+        System.out.println(currentDesk);
+        Group panelGame = rootView.findActor("Panel_Game");
+        Group playPanel = panelGame.findActor("PlayerPanel_" + currentDesk);
+        Image recvHandCard;
+        if (currentDesk == 0) {
+            recvHandCard = playPanel.findActor("RecvHandCard_" + currentDesk);
+        }else {
+            recvHandCard = playPanel.findActor("RecvCard_" + currentDesk);
+        }
+        int cbData = indexToCard(i);
+        String path = null;
+        if (currentDesk == 0){
+            path = "cocos/GameLayer/Mahjong/2/handmah_" + (((cbData & MASK_COLOR) >> 4)+1)+""+ (cbData & MASK_VALUE) + ".png";
+        }else if (currentDesk == 1){
+             path =  "cocos/GameLayer/Mahjong/hand_left.png";
+        }else if (currentDesk == 2){
+            path =  "cocos/GameLayer/Mahjong/hand_top.png";
+        }else if (currentDesk == 3){
+            path =  "cocos/GameLayer/Mahjong/hand_right.png";
+        }
+        recvHandCard.setDrawable(new TextureRegionDrawable(new TextureRegion(Asset.getAsset().getTexture(path))));
+        recvHandCard.setVisible(true);
+        IUser iUser = iUsers.get(currentDesk);
+        iUser.getUserHandPai().add(i);
+
+        rootView.addAction(Actions.delay(3,Actions.run(()->{
+            int analy = iUser.analy();
+            recvHandCard.setVisible(false);
+            Group actor = panelGame.findActor("DiscardCard_" + currentDesk);
+
+            new Image(Asset.getAsset().getTexture())
+            actor.addActor();
+        })));
+
     }
 
     private void initUserIconAnimation() {
