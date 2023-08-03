@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.kw.gdx.asset.Asset;
 import com.kw.gdx.listener.OrdinaryButtonListener;
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 
 import kw.maj.data.MajData;
 import kw.maj.group.UserMajGroup;
@@ -29,10 +30,12 @@ public class MajLogic {
     private int currentDesk;
     private Group rootView;
     private  MajData data;
+    private int disCard[];
 
     public MajLogic(Group group){
         this.rootView = group;
         iUsers = new Array<>();
+        disCard = new int[4];
     }
     public void initData(){
        data = new MajData();
@@ -78,40 +81,106 @@ public class MajLogic {
     private void gameSendPai() {
         //庄家开始
         int i = data.faPai();
+        if (i == -2){
+            System.out.println("-----------流局----------");
+            return;
+        }
         currentDesk = (currentDesk)% 4;
         System.out.println(currentDesk);
         Group panelGame = rootView.findActor("Panel_Game");
         Group playPanel = panelGame.findActor("PlayerPanel_" + currentDesk);
-        Image recvHandCard;
-        if (currentDesk == 0) {
-            recvHandCard = playPanel.findActor("RecvHandCard_" + currentDesk);
-        }else {
-            recvHandCard = playPanel.findActor("RecvCard_" + currentDesk);
-        }
-        int cbData = indexToCard(i);
         String path = null;
+
+        System.out.println(i+"     ------------   "+ (((i & MASK_COLOR) >> 4)+1)+""+ (i & MASK_VALUE));
+
         if (currentDesk == 0){
-            path = "cocos/GameLayer/Mahjong/2/handmah_" + (((cbData & MASK_COLOR) >> 4)+1)+""+ (cbData & MASK_VALUE) + ".png";
-        }else if (currentDesk == 1){
-             path =  "cocos/GameLayer/Mahjong/hand_left.png";
+            Group recvHandCard = playPanel.findActor("RecvHandCard_" + currentDesk);
+            path = "cocos/GameLayer/Mahjong/2/handmah_" + (((i & MASK_COLOR) >> 4)+1)+""+ (i & MASK_VALUE) + ".png";
+            recvHandCard.clear();
+            recvHandCard.setVisible(true);
+            Image image = new Image(Asset.getAsset().getTexture(path));
+            recvHandCard.addActor(image);
+            IUser iUser = iUsers.get(currentDesk);
+            iUser.getUserHandPai().add(i);
+
+        } else if (currentDesk == 1){
+            path =  "cocos/GameLayer/Mahjong/hand_left.png";
+            Image recvHandCard = playPanel.findActor("RecvCard_" + currentDesk);
+            recvHandCard.setDrawable(new TextureRegionDrawable(new TextureRegion(Asset.getAsset().getTexture(path))));
+            recvHandCard.setVisible(true);
+            IUser iUser = iUsers.get(currentDesk);
+            iUser.getUserHandPai().add(i);
         }else if (currentDesk == 2){
             path =  "cocos/GameLayer/Mahjong/hand_top.png";
+            Image recvHandCard = playPanel.findActor("RecvCard_" + currentDesk);
+            recvHandCard.setDrawable(new TextureRegionDrawable(new TextureRegion(Asset.getAsset().getTexture(path))));
+            recvHandCard.setVisible(true);
+            IUser iUser = iUsers.get(currentDesk);
+            iUser.getUserHandPai().add(i);
         }else if (currentDesk == 3){
             path =  "cocos/GameLayer/Mahjong/hand_right.png";
+            Image recvHandCard = playPanel.findActor("RecvCard_" + currentDesk);
+            recvHandCard.setDrawable(new TextureRegionDrawable(new TextureRegion(Asset.getAsset().getTexture(path))));
+            recvHandCard.setVisible(true);
+            IUser iUser = iUsers.get(currentDesk);
+            iUser.getUserHandPai().add(i);
         }
-        recvHandCard.setDrawable(new TextureRegionDrawable(new TextureRegion(Asset.getAsset().getTexture(path))));
-        recvHandCard.setVisible(true);
-        IUser iUser = iUsers.get(currentDesk);
-        iUser.getUserHandPai().add(i);
 
-        rootView.addAction(Actions.delay(3,Actions.run(()->{
-            int analy = iUser.analy();
-            recvHandCard.setVisible(false);
-            Group actor = panelGame.findActor("DiscardCard_" + currentDesk);
 
-            new Image(Asset.getAsset().getTexture())
-            actor.addActor();
-        })));
+            //假装分析
+            rootView.addAction(Actions.delay(0.3F, Actions.run(() -> {
+                IUser iUser = iUsers.get(currentDesk);
+                int analy = iUser.analy();
+                if (currentDesk == 0) {
+                    Group recvHandCard = playPanel.findActor("RecvHandCard_" + currentDesk);
+                    recvHandCard.setVisible(false);
+                } else {
+                    Image recvHandCard = playPanel.findActor("RecvCard_" + currentDesk);
+                    recvHandCard.setVisible(false);
+                }
+
+                Group actor = panelGame.findActor("DiscardCard_" + currentDesk);
+                String pathTexture = null;
+                if (currentDesk == 0) {
+                    pathTexture = "cocos/GameLayer/Mahjong/2/mingmah_" + (((i & MASK_COLOR) >> 4) + 1) + "" + (i & MASK_VALUE) + ".png";
+                } else if (currentDesk == 1) {
+                    pathTexture = "cocos/GameLayer/Mahjong/3/mingmah_" + (((i & MASK_COLOR) >> 4) + 1) + "" + (i & MASK_VALUE) + ".png";
+                } else if (currentDesk == 2) {
+                    pathTexture = "cocos/GameLayer/Mahjong/2/mingmah_" + (((i & MASK_COLOR) >> 4) + 1) + "" + (i & MASK_VALUE) + ".png";
+                } else if (currentDesk == 3) {
+                    pathTexture = "cocos/GameLayer/Mahjong/1/mingmah_" + (((i & MASK_COLOR) >> 4) + 1) + "" + (i & MASK_VALUE) + ".png";
+                }
+                Image image = new Image(Asset.getAsset().getTexture(pathTexture));
+                actor.addActor(image);
+                int i1 = disCard[currentDesk];
+                int i2 = i1 % 11;
+                int i3 = i1 / 11;
+                float distance = 40;
+                if (currentDesk == 0) {
+                    image.setX(i2 * distance);
+                    image.setY(i3*distance);
+                    image.setScale(0.6f);
+                }
+                if (currentDesk == 1){
+                    image.setY(i2 * 35);
+                    image.setX(i3*distance);
+                    image.setScale(0.5f);
+                }
+                if (currentDesk == 2){
+                    image.setX(i2 * distance);
+                    image.setY(i3*distance);
+                    image.setScale(0.6f);
+                }
+                if (currentDesk == 3){
+                    image.setY(i2 * 35);
+                    image.setX(i3*distance);
+                    image.setScale(0.5f);
+                }
+                disCard[currentDesk]++;
+                image.toBack();
+                currentDesk ++;
+                gameSendPai();
+            })));
 
     }
 
