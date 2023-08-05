@@ -1,4 +1,4 @@
-package kw.maj;
+package kw.maj.test;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;

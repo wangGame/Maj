@@ -6,7 +6,7 @@ import com.kw.gdx.BaseGame;
 import com.kw.gdx.resource.annotation.ScreenResource;
 import com.kw.gdx.screen.BaseScreen;
 
-import kw.maj.MajLogic;
+import kw.maj.logic.MajLogic;
 
 @ScreenResource("cocos/gameview.json")
 public class MajScreen extends BaseScreen {
@@ -36,9 +36,6 @@ public class MajScreen extends BaseScreen {
         Label textLeftCard = panelBg.findActor("Text_LeftCard");
         textLeftCard.setText(0);
     }
-
-    int xx;
-    private int index;
     //   2
     //1     3
     //   0
@@ -46,10 +43,5 @@ public class MajScreen extends BaseScreen {
         logic = new MajLogic(stage.getRoot());
         logic.initData();
         logic.userEnter();
-    }
-
-
-    private void showUseIcon() {
-
     }
 }

@@ -121,11 +121,90 @@ public class AnalyseUtils {
         return array;
     }
 
-    public static void userSendCardOrNa(int newCard, IUser iUser, boolean isCurrentUser){
+    public static int userSendCardOrNa(int newCard, IUser iUser, boolean isCurrentUser){
         int cardType = getCardType(newCard);
         int cardValue = getCardValue(newCard);
         //检测杠
         boolean gang = false;
+        Array<Integer> userHandPai = gangPanduan(newCard, iUser, isCurrentUser, gang);
+        if (userHandPai == null) return 1;
+        int[][] tempArr = pengJiance(newCard, iUser, isCurrentUser, cardType, cardValue, userHandPai);
+        if (tempArr == null) return 2;
+        chijiance(newCard, iUser, isCurrentUser, cardType, cardValue, tempArr);
+        return -1;
+    }
+
+    private static void chijiance(int newCard, IUser iUser, boolean isCurrentUser, int cardType, int cardValue, int[][] tempArr) {
+        //吃
+        if (cardType !=4){
+            if (cardValue +2<=9){
+                if (tempArr[cardType][cardValue +1] == newCard +1) {
+                    if (tempArr[cardType][cardValue +2] == newCard +2) {
+                        //chi
+
+                        ChiModel model = new ChiModel();
+                        model.setPublicCard(!isCurrentUser);
+                        Array<Integer>arrayTem = new Array<>();
+                        arrayTem.add(newCard, newCard +1, newCard +2);
+                        model.setPaiId(arrayTem);
+                        iUser.addChi(model);
+                        return;
+                    }
+                }
+            }
+            if (cardValue - 2 >=1) {
+                if (tempArr[cardType][cardValue - 1] == newCard - 1) {
+                    if (tempArr[cardType][cardValue - 2] == newCard - 2) {
+                        //chi
+
+                        ChiModel model = new ChiModel();
+                        model.setPublicCard(!isCurrentUser);
+                        Array<Integer> arrayTem = new Array<>();
+                        arrayTem.add(newCard, newCard - 1, newCard - 2);
+                        model.setPaiId(arrayTem);
+                        iUser.addChi(model);
+                        return;
+                    }
+                }
+            }
+            if (cardValue -1>=1 && cardValue +1<=9) {
+                if (tempArr[cardType][cardValue - 1] == newCard - 1) {
+                    if (tempArr[cardType][cardValue + 1] == newCard + 1) {
+                        //chi
+                        ChiModel model = new ChiModel();
+                        model.setPublicCard(!isCurrentUser);
+                        Array<Integer> arrayTem = new Array<>();
+                        arrayTem.add(newCard, newCard - 1, newCard + 1);
+                        model.setPaiId(arrayTem);
+                        iUser.addChi(model);
+                    }
+                }
+            }
+        }
+    }
+
+    private static int[][] pengJiance(int newCard, IUser iUser, boolean isCurrentUser, int cardType, int cardValue, Array<Integer> userHandPai) {
+        int [][] tempArr = new int[5][10] ;
+        for (Integer integer : userHandPai) {
+            int cardValueTemp = getCardValue(integer);
+            int cardTypeTemp = getCardType(integer);
+            tempArr[cardTypeTemp][cardValueTemp] = 0;
+            if (cardTypeTemp==4)continue;
+            tempArr[cardTypeTemp][cardValueTemp] ++;
+        }
+
+        if (tempArr[cardType][cardValue] == 2) {
+            //碰
+            PengModel model = new PengModel();
+            model.setPublicCard(!isCurrentUser);
+            model.setCardData(newCard);
+            iUser.addPeng(model);
+            return null;
+        }
+        return tempArr;
+    }
+
+    private static Array<Integer> gangPanduan(int newCard, IUser iUser, boolean isCurrentUser, boolean gang) {
         PengModel pengModelTemp = null;
         Array<Integer> userHandPai = iUser.getUserHandPai();
         Array<PengModel> pengModels = iUser.getPengModels();
@@ -145,119 +224,13 @@ public class AnalyseUtils {
             gmodel.setPublicCard(!isCurrentUser);
             gmodel.setCardData(newCard);
             iUser.addGang(gmodel);
-            return;
+            return null;
         }
-
-        int [][] tempArr = new int[5][10] ;
-        for (Integer integer : userHandPai) {
-            int cardValueTemp = getCardValue(integer);
-            int cardTypeTemp = getCardType(integer);
-            tempArr[cardTypeTemp][cardValueTemp] = 0;
-            if (cardTypeTemp==4)continue;
-            tempArr[cardTypeTemp][cardValueTemp] ++;
-        }
-
-        if (tempArr[cardType][cardValue] == 2) {
-            //碰
-            PengModel model = new PengModel();
-            model.setPublicCard(!isCurrentUser);
-            model.setCardData(newCard);
-            iUser.addPeng(model);
-            return;
-        }
-
-        //吃
-        if (cardType!=4){
-            //
-//            if (cardValue==1) {
-//                if (tempArr[cardType][cardValue+1] == newCard+1) {
-//                    if (tempArr[cardType][cardValue+2] == newCard+2) {
-//                        //chi
-//                        ChiModel model = new ChiModel();
-//                        model.setPublicCard(!isCurrentUser);
-//                        Array<Integer>arrayTem = new Array<>();
-//                        arrayTem.add(newCard,newCard+1,newCard+2);
-//                        model.setPaiId(arrayTem);
-//                        iUser.addChi(model);
-//                        return;
-//                    }
-//                }
-//            }else if (cardValue == 9){
-//                if (tempArr[cardType][cardValue-1] == newCard-1) {
-//                    if (tempArr[cardType][cardValue-2] == newCard-2) {
-//                        //chi
-//                        ChiModel model = new ChiModel();
-//                        model.setPublicCard(!isCurrentUser);
-//                        Array<Integer>arrayTem = new Array<>();
-//                        arrayTem.add(newCard,newCard-1,newCard-2);
-//                        model.setPaiId(arrayTem);
-//                        iUser.addChi(model);
-//                        return;
-//                    }
-//                }
-//            }else {
-                if (cardValue+2<=9){
-                    if (tempArr[cardType][cardValue+1] == newCard+1) {
-                        if (tempArr[cardType][cardValue+2] == newCard+2) {
-                            //chi
-
-                            ChiModel model = new ChiModel();
-                            model.setPublicCard(!isCurrentUser);
-                            Array<Integer>arrayTem = new Array<>();
-                            arrayTem.add(newCard,newCard+1,newCard+2);
-                            model.setPaiId(arrayTem);
-                            iUser.addChi(model);
-                            return;
-                        }
-                    }
-                }
-                if (cardValue - 2 >=1) {
-                    if (tempArr[cardType][cardValue - 1] == newCard - 1) {
-                        if (tempArr[cardType][cardValue - 2] == newCard - 2) {
-                            //chi
-
-                            ChiModel model = new ChiModel();
-                            model.setPublicCard(!isCurrentUser);
-                            Array<Integer> arrayTem = new Array<>();
-                            arrayTem.add(newCard, newCard - 1, newCard - 2);
-                            model.setPaiId(arrayTem);
-                            iUser.addChi(model);
-                            return;
-                        }
-                    }
-                }
-                if (cardValue-1>=1 && cardValue+1<=9) {
-                    if (tempArr[cardType][cardValue - 1] == newCard - 1) {
-                        if (tempArr[cardType][cardValue + 1] == newCard + 1) {
-                            //chi
-
-                            ChiModel model = new ChiModel();
-                            model.setPublicCard(!isCurrentUser);
-                            Array<Integer> arrayTem = new Array<>();
-                            arrayTem.add(newCard, newCard - 1, newCard + 1);
-                            model.setPaiId(arrayTem);
-                            iUser.addChi(model);
-                            return;
-                        }
-                    }
-                }
-
-//            }
-        }
-
-        //
-//        Array<ChiModel> chiModels = iUser.getChiModels();
-//        for (ChiModel chiModel : chiModels) {
-//            if (chiModel.getType() == cardType) {
-//
-//            }
-//        }
+        return userHandPai;
     }
 
-    public static void outFenxi(IUser iUser) {
+    public static Array<Integer> outFenxi(IUser iUser) {
         Array<Integer> canOption = iUser.getCanOption();
-        Array<Integer> temp = new Array<>(canOption);
-
         Array<Integer> array= new Array<>();
         int [][] tempArr = new int[5][10] ;
         for (Integer integer : canOption) {
@@ -270,27 +243,10 @@ public class AnalyseUtils {
                 array.add(integer);
             }
         }
-
-
-        Array<Integer> aa = new Array<>();
-        for (int[] ints : tempArr) {
-            for (int i = 0; i < ints.length-1; i++) {
-                if (ints[i] == ints[i+1]) {
-
-                }
-            }
+        Array<Integer> temp = new Array<>(canOption);
+        for (Integer integer : array) {
+            temp.removeValue(integer,false);
         }
-
-    }
-
-
-    /**
-     * Index转成牌
-     * @param cbCardIndex
-     * @return
-     */
-    int switchToCardData(int cardType,int cardValue) {
-        return (((cbCardIndex / 9) << 4)
-                | (cbCardIndex % 9 + 1));;
+        return temp;
     }
 }

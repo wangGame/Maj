@@ -8,7 +8,7 @@ import com.kw.gdx.resource.annotation.ScreenResource;
 import com.kw.gdx.screen.BaseScreen;
 import com.kw.gdx.sign.SignListener;
 
-import kw.maj.SquareGroup;
+import kw.maj.test.SquareGroup;
 
 @ScreenResource("cocos/gameview.json")
 public class GameScreen extends BaseScreen {

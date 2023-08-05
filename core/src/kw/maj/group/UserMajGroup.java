@@ -10,18 +10,11 @@ import com.kw.gdx.listener.OrdinaryButtonListener;
 public class UserMajGroup extends Group {
     Image image;
     private boolean isSelect;
-    public UserMajGroup(String path,Runnable runnable){
+    public UserMajGroup(String path){
         image = new Image(Asset.getAsset().getTexture(path));
         addActor(image);
         setSize(image.getWidth(),image.getHeight());
         image.setTouchable(Touchable.disabled);
-        addListener(new OrdinaryButtonListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                runnable.run();
-            }
-        });
     }
 
     public void resetPosition() {
