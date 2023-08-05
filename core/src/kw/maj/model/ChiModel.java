@@ -6,6 +6,16 @@ public class ChiModel {
     private Array<Integer> paiId;
     private int type;//万  饼等
 
+    private boolean isPublicCard;
+
+    public boolean isPublicCard() {
+        return isPublicCard;
+    }
+
+    public void setPublicCard(boolean publicCard) {
+        isPublicCard = publicCard;
+    }
+
     public void setPaiId(Array<Integer> paiId) {
         this.paiId = paiId;
     }

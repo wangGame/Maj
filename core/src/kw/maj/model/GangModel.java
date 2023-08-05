@@ -1,7 +1,6 @@
 package kw.maj.model;
 
-public class PengModel {
-
+public class GangModel {
     private boolean isPublicCard;
     private int cardData;
 
